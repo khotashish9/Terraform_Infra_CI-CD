@@ -37,7 +37,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = "landingzone-aks"
-  location            = azurerm_resource_group.rg.location
+  location            = "southindia"
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "landingzoneaks"
 
