@@ -1,12 +1,11 @@
-name: Terraform CD (Apply Infra)
+name: Terraform CI (Validate & Plan)
 
 on:
-  workflow_dispatch:
-  push:
+  pull_request:
     branches: [main]
 
 jobs:
-  terraform-apply:
+  terraform-plan:
     runs-on: ubuntu-latest
 
     env:
@@ -24,8 +23,20 @@ jobs:
         with:
           terraform_version: 1.4.6
 
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan.binary
+
+      - name: Upload Plan for Review
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan.binary
