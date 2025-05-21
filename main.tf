@@ -33,6 +33,9 @@ resource "azurerm_key_vault" "kv" {
   sku_name                    = "standard"
 }
 
+data "azurerm_client_config" "current" {}
+
+
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "landingzone-vm"
   resource_group_name = azurerm_resource_group.rg.name
