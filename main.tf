@@ -18,7 +18,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_storage_account" "storage" {
-  name                     = "landingzonestorage"
+  name                     = "landingzonestracc"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -26,30 +26,11 @@ resource "azurerm_storage_account" "storage" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                        = "landingzonekv"
+  name                        = "landingzonekvdev"
   location                    = azurerm_resource_group.rg.location
   resource_group_name         = azurerm_resource_group.rg.name
   tenant_id                   = data.azurerm_client_config.current.tenant_id
   sku_name                    = "standard"
-}
-
-data "azurerm_client_config" "current" {}
-
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "landingzone-aks"
-  location            = "southindia"
-  resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = "landingzoneaks"
-
-  default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_DS2_v2"
-  }
-
-  identity {
-    type = "SystemAssigned"
-  }
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
