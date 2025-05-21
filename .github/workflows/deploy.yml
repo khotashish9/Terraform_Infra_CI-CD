@@ -25,19 +25,8 @@ jobs:
         with:
           terraform_version: 1.4.6
 
-      - name: Debug: Show environment vars
-        run: |
-          echo "ARM_CLIENT_ID is set"
-          echo "ARM_SUBSCRIPTION_ID is set"
-          echo "ARM_TENANT_ID is set"
-          echo "ARM_CLIENT_SECRET is set"
-        shell: bash
-
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Plan
         run: terraform plan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
