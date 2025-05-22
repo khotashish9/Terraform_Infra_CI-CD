@@ -36,10 +36,6 @@ resource "azurerm_key_vault" "kv" {
 data "azurerm_client_config" "current" {}
 
 
-provider "azurerm" {
-  features {}
-}
-
 resource "azurerm_network_interface" "nic" {
   name                = "nic-win"
   location            = azurerm_resource_group.rg.location
