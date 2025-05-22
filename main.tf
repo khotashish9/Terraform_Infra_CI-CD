@@ -58,7 +58,7 @@ resource "azurerm_public_ip" "pip" {
 
 resource "azurerm_windows_virtual_machine" "win_vm" {
   name                = "win-vm"
-  location            = "centralindia"
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   size                = "Standard_B2as_v2"
   admin_username      = "azureuser"
