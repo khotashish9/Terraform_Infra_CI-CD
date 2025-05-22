@@ -60,7 +60,7 @@ resource "azurerm_windows_virtual_machine" "win_vm" {
   name                = "win-vm"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  size                = "Standard_B2ms"
+  size                = "Standard_B2as_v2"
   admin_username      = "azureuser"
   admin_password      = "P@ssword1234!" # Use secret in CI/CD pipeline
   network_interface_ids = [
