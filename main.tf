@@ -37,19 +37,25 @@ data "azurerm_client_config" "current" {}
 
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "landingzone-vm"
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "my-linux-vm"
   location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   size                = "Standard_B1s"
   admin_username      = "azureuser"
+  network_interface_ids = [
+    azurerm_network_interface.nic.id,
+  ]
+  disable_password_authentication = true
 
-  admin_password = "P@ssw0rd1234!"
-
-  network_interface_ids = [azurerm_network_interface.nic.id]
+  admin_ssh_key {
+    username   = "azureuser"
+    public_key = file("~/.ssh/id_rsa.pub")  # Path to your public SSH key
+  }
 
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    name                 = "myosdisk"
   }
 
   source_image_reference {
@@ -60,14 +66,3 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 }
 
-resource "azurerm_network_interface" "nic" {
-  name                = "vm-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
