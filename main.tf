@@ -36,45 +36,70 @@ resource "azurerm_key_vault" "kv" {
 data "azurerm_client_config" "current" {}
 
 
-resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "my-linux-vm"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  size                = "Standard_B1s"
-  admin_username      = "azureuser"
-  network_interface_ids = [
-    azurerm_network_interface.nic.id,
-  ]
-  disable_password_authentication = true
-
-  admin_ssh_key {
-    username   = "azureuser"
-    public_key = file("~/.ssh/id_rsa.pub")  # Path to your public SSH key
-  }
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-    name                 = "myosdisk"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
+provider "azurerm" {
+  features {}
 }
 
+resource "azurerm_resource_group" "rg" {
+  name     = "rg-win-vm"
+  location = "East US"
+}
+
+resource "azurerm_virtual_network" "vnet" {
+  name                = "vnet-win"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_subnet" "subnet" {
+  name                 = "subnet-win"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
 
 resource "azurerm_network_interface" "nic" {
-  name                = "vm-nic"
+  name                = "nic-win"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = "ipconfig1"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id         = azurerm_public_ip.pip.id
+  }
+}
+
+resource "azurerm_public_ip" "pip" {
+  name                = "pip-win"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Dynamic"
+}
+
+resource "azurerm_windows_virtual_machine" "win_vm" {
+  name                = "win-vm"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  size                = "Standard_B2ms"
+  admin_username      = "azureuser"
+  admin_password      = "P@ssword1234!" # Use secret in CI/CD pipeline
+  network_interface_ids = [
+    azurerm_network_interface.nic.id,
+  ]
+
+  os_disk {
+    name                 = "osdisk-win"
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-Datacenter"
+    version   = "latest"
   }
 }
